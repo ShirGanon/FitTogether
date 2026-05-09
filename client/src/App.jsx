@@ -15,6 +15,7 @@ import MyPostsPage from './pages/MyPostsPage.jsx';
 import AdvancedSearchPage from './pages/AdvancedSearchPage.jsx';
 import ChatPage from './pages/ChatPage.jsx';
 import StatisticsPage from './pages/StatisticsPage.jsx';
+import AboutPage from './pages/AboutPage.jsx';
 
 // Placeholder pages for phases 3-8 — filled in as we progress.
 function Placeholder({ title }) {
@@ -57,7 +58,7 @@ function AppRoutes() {
         <Route path="/search" element={<ProtectedRoute><AdvancedSearchPage /></ProtectedRoute>} />
         <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
         <Route path="/stats" element={<ProtectedRoute><StatisticsPage /></ProtectedRoute>} />
-        <Route path="/about" element={<Placeholder title="About" />} />
+        <Route path="/about" element={<AboutPage />} />
 
         {/* User routes */}
         <Route path="/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getUser, addFriend, removeFriend, deleteUser } from '../api/usersApi.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import CanvasFitnessBadge from '../components/CanvasFitnessBadge.jsx';
 
 export default function ProfilePage() {
   const { id } = useParams();
@@ -56,6 +57,7 @@ export default function ProfilePage() {
   return (
     <div className="page-content">
       <div className="profile-header card">
+        <CanvasFitnessBadge user={user} />
         <div className="profile-info">
           <h1>{user.fullName}</h1>
           <p className="username">@{user.username}</p>

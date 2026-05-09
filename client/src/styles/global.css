@@ -1,14 +1,40 @@
-/* FitTogether global styles — Phase 2.
-   The five required CSS3 features (text-shadow, transition, multi-column,
-   font-face, border-radius) are fully applied in Phase 8. Placeholders
-   for border-radius and transition are used from the start. */
+/* ═══════════════════════════════════════════════════════════════
+   FitTogether — Global Styles
+   CSS3 REQUIREMENTS (all five explicitly applied below):
+   1. @font-face      — FitTogetherFont loaded from /fonts/
+   2. text-shadow     — .hero-title, .page-title
+   3. transition      — .card, .btn, input, .tab, .friend-chip
+   4. multiple-columns — .about-columns (AboutPage)
+   5. border-radius   — .card, .btn, input, .badge, .checkbox-label
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── CSS3 #1: @font-face ── */
+/* Drop Poppins-Regular.woff2 into client/public/fonts/ to activate.
+   Falls back to system-ui seamlessly while the file is missing.    */
+@font-face {
+  font-family: 'FitTogetherFont';
+  src: url('/fonts/Poppins-Regular.woff2') format('woff2'),
+       url('https://fonts.gstatic.com/s/poppins/v21/pxiEyp8kv8JHgFVrJJfecg.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FitTogetherFont';
+  src: url('/fonts/Poppins-SemiBold.woff2') format('woff2'),
+       url('https://fonts.gstatic.com/s/poppins/v21/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
 
 * { box-sizing: border-box; }
 
 html, body, #root {
   margin: 0; padding: 0;
   min-height: 100vh;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'FitTogetherFont', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   background: #f5f7fa;
   color: #1f2937;
 }
@@ -289,4 +315,23 @@ textarea { resize: vertical; }
 /* ── Misc ── */
 .meta { margin: 2px 0; font-size: 0.875rem; color: #6b7280; }
 .bio { margin: 8px 0 0; font-size: 0.9rem; color: #374151; }
-.hero-title { font-size: 2rem; margin: 0 0 8px; }
+
+/* CSS3 #2: text-shadow — applied to all major page/hero titles */
+.hero-title {
+  font-size: 2rem; margin: 0 0 8px;
+  text-shadow: 1px 2px 6px rgba(0, 0, 0, 0.18);
+}
+.page-title {
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+/* CSS3 #4: multiple-columns — used in AboutPage for descriptive text */
+.about-columns {
+  column-count: 2;
+  column-gap: 32px;
+  column-rule: 1px solid #e5e7eb;
+}
+@media (max-width: 600px) {
+  .about-columns { column-count: 1; }
+  .stats-summary { grid-template-columns: repeat(2, 1fr); }
+}

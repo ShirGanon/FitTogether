@@ -31,6 +31,7 @@ export default function Navbar() {
             <Link to="/search">Search</Link>
             <Link to="/chat">Chat</Link>
             <Link to="/stats">Stats</Link>
+            <Link to="/about">About</Link>
             <Link to={`/profile/${currentUser._id}`}>Profile</Link>
             <button onClick={handleLogout} className="btn-link">Logout</button>
           </>
