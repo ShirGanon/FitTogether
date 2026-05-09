@@ -1,15 +1,11 @@
-// FitTogether server entry point.
-// Wires up Express, session middleware, MongoDB connection, and the (currently
-// minimal) /api/health route. As the project grows we will mount additional
-// route files (auth, users, groups, posts, messages, stats) and the Socket.io
-// chat handler from sockets/chatSocket.js.
-
 require('dotenv').config();
 
+const http = require('http');
 const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const { Server } = require('socket.io');
 
 const connectDB = require('./config/db');
 const errorMiddleware = require('./middleware/errorMiddleware');
@@ -17,53 +13,61 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const groupRoutes = require('./routes/groupRoutes');
 const postRoutes = require('./routes/postRoutes');
+const messageRoutes = require('./routes/messageRoutes');
+const setupChatSocket = require('./sockets/chatSocket');
 
 const app = express();
+const server = http.createServer(app);
 
 const PORT = process.env.PORT || 3000;
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
 
+// Socket.io — CORS must match Vite origin.
+const io = new Server(server, {
+  cors: { origin: CLIENT_ORIGIN, credentials: true },
+});
+
 app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
 app.use(express.json());
 
-app.use(
-  session({
-    name: 'fittogether.sid',
-    secret: process.env.SESSION_SECRET || 'dev-only-change-me',
-    resave: false,
-    saveUninitialized: false,
-    store: process.env.MONGO_URI
-      ? MongoStore.create({ mongoUrl: process.env.MONGO_URI })
-      : undefined,
-    cookie: {
-      httpOnly: true,
-      sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24 * 7, // one week
-    },
-  })
-);
+// Build the session middleware as a variable so we can share it with Socket.io.
+const sessionMiddleware = session({
+  name: 'fittogether.sid',
+  secret: process.env.SESSION_SECRET || 'dev-only-change-me',
+  resave: false,
+  saveUninitialized: false,
+  store: process.env.MONGO_URI
+    ? MongoStore.create({ mongoUrl: process.env.MONGO_URI })
+    : undefined,
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+  },
+});
+
+app.use(sessionMiddleware);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/messages', messageRoutes);
 
-// Health check — proves end-to-end wiring (client → Vite proxy → Express → Mongo).
+// Health check.
 app.get('/api/health', (req, res) => {
   const mongoose = require('mongoose');
-  res.json({
-    ok: true,
-    time: new Date().toISOString(),
-    mongoState: mongoose.connection.readyState, // 1 === connected
-  });
+  res.json({ ok: true, time: new Date().toISOString(), mongoState: mongoose.connection.readyState });
 });
 
-// Central error handler — must be last middleware.
 app.use(errorMiddleware);
+
+// Pass the session middleware to Socket.io so it can read session.userId.
+setupChatSocket(io, sessionMiddleware);
 
 connectDB()
   .then(() => {
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`FitTogether server listening on http://localhost:${PORT}`);
     });
   })
