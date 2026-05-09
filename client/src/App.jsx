@@ -1,56 +1,78 @@
-// Root component for Phase 1. Shows the app title and pings /api/health on
-// mount via the centralized jQuery ajaxClient. The status panel proves the
-// fullstack skeleton is alive: React rendered, jQuery + Ajax work, Vite proxy
-// forwards to Express, Express talks to MongoDB.
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext.jsx';
+import Navbar from './components/Navbar.jsx';
 
-import { useEffect, useState } from 'react';
-import { getHealth } from './api/healthApi.js';
+import LoginPage from './pages/LoginPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
+import EditProfilePage from './pages/EditProfilePage.jsx';
+import UsersPage from './pages/UsersPage.jsx';
 
-const MONGO_STATE_LABEL = {
-  0: 'disconnected',
-  1: 'connected',
-  2: 'connecting',
-  3: 'disconnecting',
-};
+// Placeholder pages for phases 3-8 — filled in as we progress.
+function Placeholder({ title }) {
+  return <div className="page-content"><h2>{title}</h2><p>Coming soon.</p></div>;
+}
 
-export default function App() {
-  const [health, setHealth] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+// Redirects unauthenticated users to /login.
+function ProtectedRoute({ children }) {
+  const { currentUser, authLoading } = useAuth();
+  if (authLoading) return <div className="page-content"><p>Loading…</p></div>;
+  if (!currentUser) return <Navigate to="/login" replace />;
+  return children;
+}
 
-  useEffect(() => {
-    getHealth()
-      .then((data) => setHealth(data))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
+// Redirects already-logged-in users away from /login and /register.
+function GuestRoute({ children }) {
+  const { currentUser, authLoading } = useAuth();
+  if (authLoading) return <div className="page-content"><p>Loading…</p></div>;
+  if (currentUser) return <Navigate to="/feed" replace />;
+  return children;
+}
+
+function AppRoutes() {
+  const { currentUser } = useAuth();
 
   return (
-    <main className="skeleton">
-      <h1 className="hero-title">FitTogether</h1>
-      <p className="tagline">Social network for fitness communities.</p>
+    <>
+      <Navbar />
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+        <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
 
-      <section className="status-panel">
-        <h2>Server status</h2>
-        {loading && <p>Pinging /api/health…</p>}
-        {error && <p className="status-error">Error: {error}</p>}
-        {health && (
-          <ul>
-            <li>
-              <strong>ok:</strong> {String(health.ok)}
-            </li>
-            <li>
-              <strong>time:</strong> {health.time}
-            </li>
-            <li>
-              <strong>mongo:</strong>{' '}
-              {MONGO_STATE_LABEL[health.mongoState] ?? `state ${health.mongoState}`}
-            </li>
-          </ul>
-        )}
-      </section>
+        {/* Protected routes */}
+        <Route path="/feed" element={<ProtectedRoute><Placeholder title="Feed" /></ProtectedRoute>} />
+        <Route path="/groups" element={<ProtectedRoute><Placeholder title="Groups" /></ProtectedRoute>} />
+        <Route path="/groups/:id" element={<ProtectedRoute><Placeholder title="Group Details" /></ProtectedRoute>} />
+        <Route path="/groups/:id/manage" element={<ProtectedRoute><Placeholder title="Group Management" /></ProtectedRoute>} />
+        <Route path="/my-posts" element={<ProtectedRoute><Placeholder title="My Posts" /></ProtectedRoute>} />
+        <Route path="/search" element={<ProtectedRoute><Placeholder title="Advanced Search" /></ProtectedRoute>} />
+        <Route path="/chat" element={<ProtectedRoute><Placeholder title="Chat" /></ProtectedRoute>} />
+        <Route path="/stats" element={<ProtectedRoute><Placeholder title="Statistics" /></ProtectedRoute>} />
+        <Route path="/about" element={<Placeholder title="About" />} />
 
-      <p className="phase-note">Phase 1 — fullstack skeleton.</p>
-    </main>
+        {/* User routes */}
+        <Route path="/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
+        <Route path="/profile/edit" element={<ProtectedRoute><EditProfilePage /></ProtectedRoute>} />
+        <Route path="/profile/:id" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+
+        {/* Default: redirect to feed if logged in, login if not */}
+        <Route
+          path="/"
+          element={currentUser ? <Navigate to="/feed" replace /> : <Navigate to="/login" replace />}
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
