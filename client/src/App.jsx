@@ -7,6 +7,9 @@ import RegisterPage from './pages/RegisterPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import EditProfilePage from './pages/EditProfilePage.jsx';
 import UsersPage from './pages/UsersPage.jsx';
+import GroupsPage from './pages/GroupsPage.jsx';
+import GroupDetailsPage from './pages/GroupDetailsPage.jsx';
+import GroupManagementPage from './pages/GroupManagementPage.jsx';
 
 // Placeholder pages for phases 3-8 — filled in as we progress.
 function Placeholder({ title }) {
@@ -42,9 +45,9 @@ function AppRoutes() {
 
         {/* Protected routes */}
         <Route path="/feed" element={<ProtectedRoute><Placeholder title="Feed" /></ProtectedRoute>} />
-        <Route path="/groups" element={<ProtectedRoute><Placeholder title="Groups" /></ProtectedRoute>} />
-        <Route path="/groups/:id" element={<ProtectedRoute><Placeholder title="Group Details" /></ProtectedRoute>} />
-        <Route path="/groups/:id/manage" element={<ProtectedRoute><Placeholder title="Group Management" /></ProtectedRoute>} />
+        <Route path="/groups" element={<ProtectedRoute><GroupsPage /></ProtectedRoute>} />
+        <Route path="/groups/:id" element={<ProtectedRoute><GroupDetailsPage /></ProtectedRoute>} />
+        <Route path="/groups/:id/manage" element={<ProtectedRoute><GroupManagementPage /></ProtectedRoute>} />
         <Route path="/my-posts" element={<ProtectedRoute><Placeholder title="My Posts" /></ProtectedRoute>} />
         <Route path="/search" element={<ProtectedRoute><Placeholder title="Advanced Search" /></ProtectedRoute>} />
         <Route path="/chat" element={<ProtectedRoute><Placeholder title="Chat" /></ProtectedRoute>} />

@@ -15,6 +15,7 @@ const connectDB = require('./config/db');
 const errorMiddleware = require('./middleware/errorMiddleware');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const groupRoutes = require('./routes/groupRoutes');
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use(
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/groups', groupRoutes);
 
 // Health check — proves end-to-end wiring (client → Vite proxy → Express → Mongo).
 app.get('/api/health', (req, res) => {
