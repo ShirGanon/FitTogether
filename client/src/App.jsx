@@ -12,6 +12,7 @@ import GroupDetailsPage from './pages/GroupDetailsPage.jsx';
 import GroupManagementPage from './pages/GroupManagementPage.jsx';
 import FeedPage from './pages/FeedPage.jsx';
 import MyPostsPage from './pages/MyPostsPage.jsx';
+import AdvancedSearchPage from './pages/AdvancedSearchPage.jsx';
 
 // Placeholder pages for phases 3-8 — filled in as we progress.
 function Placeholder({ title }) {
@@ -51,7 +52,7 @@ function AppRoutes() {
         <Route path="/groups/:id" element={<ProtectedRoute><GroupDetailsPage /></ProtectedRoute>} />
         <Route path="/groups/:id/manage" element={<ProtectedRoute><GroupManagementPage /></ProtectedRoute>} />
         <Route path="/my-posts" element={<ProtectedRoute><MyPostsPage /></ProtectedRoute>} />
-        <Route path="/search" element={<ProtectedRoute><Placeholder title="Advanced Search" /></ProtectedRoute>} />
+        <Route path="/search" element={<ProtectedRoute><AdvancedSearchPage /></ProtectedRoute>} />
         <Route path="/chat" element={<ProtectedRoute><Placeholder title="Chat" /></ProtectedRoute>} />
         <Route path="/stats" element={<ProtectedRoute><Placeholder title="Statistics" /></ProtectedRoute>} />
         <Route path="/about" element={<Placeholder title="About" />} />
