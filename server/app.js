@@ -32,12 +32,13 @@ app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
 app.use(express.json());
 
 // Build the session middleware as a variable so we can share it with Socket.io.
+// In test mode (Jest sets NODE_ENV=test) skip MongoStore — use the default MemoryStore.
 const sessionMiddleware = session({
   name: 'fittogether.sid',
   secret: process.env.SESSION_SECRET || 'dev-only-change-me',
   resave: false,
   saveUninitialized: false,
-  store: process.env.MONGO_URI
+  store: (process.env.MONGO_URI && process.env.NODE_ENV !== 'test')
     ? MongoStore.create({ mongoUrl: process.env.MONGO_URI })
     : undefined,
   cookie: {
@@ -67,13 +68,18 @@ app.use(errorMiddleware);
 // Pass the session middleware to Socket.io so it can read session.userId.
 setupChatSocket(io, sessionMiddleware);
 
-connectDB()
-  .then(() => {
-    server.listen(PORT, () => {
-      console.log(`FitTogether server listening on http://localhost:${PORT}`);
+// Only start the HTTP server when run directly — not when imported by tests.
+if (require.main === module) {
+  connectDB()
+    .then(() => {
+      server.listen(PORT, () => {
+        console.log(`FitTogether server listening on http://localhost:${PORT}`);
+      });
+    })
+    .catch((err) => {
+      console.error('Failed to start server:', err.message);
+      process.exit(1);
     });
-  })
-  .catch((err) => {
-    console.error('Failed to start server:', err.message);
-    process.exit(1);
-  });
+}
+
+module.exports = app;
