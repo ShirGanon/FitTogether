@@ -275,6 +275,17 @@ textarea { resize: vertical; }
 }
 .message-bubble-row:hover .bubble-delete { opacity: 1; }
 
+/* ── Statistics ── */
+.stats-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat-card { text-align: center; padding: 20px 12px; }
+.stat-value { font-size: 2rem; font-weight: 700; color: #1d4ed8; }
+.stat-label { font-size: 0.8rem; color: #6b7280; margin-top: 4px; }
+
 /* ── Misc ── */
 .meta { margin: 2px 0; font-size: 0.875rem; color: #6b7280; }
 .bio { margin: 8px 0 0; font-size: 0.9rem; color: #374151; }
