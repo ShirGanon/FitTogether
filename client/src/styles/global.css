@@ -184,6 +184,20 @@ textarea { resize: vertical; }
 }
 .member-row:last-child { border-bottom: none; }
 
+/* ── Posts ── */
+.post-card { margin-bottom: 14px; }
+.post-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.post-author { font-weight: 600; color: #1d4ed8; text-decoration: none; }
+.post-author:hover { text-decoration: underline; }
+.post-group { font-size: 0.875rem; color: #6b7280; }
+.post-group a { color: #6b7280; text-decoration: none; }
+.post-group a:hover { text-decoration: underline; }
+.post-date { font-size: 0.8rem; color: #9ca3af; white-space: nowrap; }
+.post-content { margin: 0 0 10px; line-height: 1.5; white-space: pre-wrap; }
+.post-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
+.post-actions { display: flex; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #f3f4f6; }
+.post-form { }
+
 /* ── Misc ── */
 .meta { margin: 2px 0; font-size: 0.875rem; color: #6b7280; }
 .bio { margin: 8px 0 0; font-size: 0.9rem; color: #374151; }

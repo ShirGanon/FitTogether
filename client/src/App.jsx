@@ -10,6 +10,8 @@ import UsersPage from './pages/UsersPage.jsx';
 import GroupsPage from './pages/GroupsPage.jsx';
 import GroupDetailsPage from './pages/GroupDetailsPage.jsx';
 import GroupManagementPage from './pages/GroupManagementPage.jsx';
+import FeedPage from './pages/FeedPage.jsx';
+import MyPostsPage from './pages/MyPostsPage.jsx';
 
 // Placeholder pages for phases 3-8 — filled in as we progress.
 function Placeholder({ title }) {
@@ -44,11 +46,11 @@ function AppRoutes() {
         <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
 
         {/* Protected routes */}
-        <Route path="/feed" element={<ProtectedRoute><Placeholder title="Feed" /></ProtectedRoute>} />
+        <Route path="/feed" element={<ProtectedRoute><FeedPage /></ProtectedRoute>} />
         <Route path="/groups" element={<ProtectedRoute><GroupsPage /></ProtectedRoute>} />
         <Route path="/groups/:id" element={<ProtectedRoute><GroupDetailsPage /></ProtectedRoute>} />
         <Route path="/groups/:id/manage" element={<ProtectedRoute><GroupManagementPage /></ProtectedRoute>} />
-        <Route path="/my-posts" element={<ProtectedRoute><Placeholder title="My Posts" /></ProtectedRoute>} />
+        <Route path="/my-posts" element={<ProtectedRoute><MyPostsPage /></ProtectedRoute>} />
         <Route path="/search" element={<ProtectedRoute><Placeholder title="Advanced Search" /></ProtectedRoute>} />
         <Route path="/chat" element={<ProtectedRoute><Placeholder title="Chat" /></ProtectedRoute>} />
         <Route path="/stats" element={<ProtectedRoute><Placeholder title="Statistics" /></ProtectedRoute>} />

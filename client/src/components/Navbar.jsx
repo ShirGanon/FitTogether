@@ -26,6 +26,7 @@ export default function Navbar() {
         {currentUser ? (
           <>
             <Link to="/feed">Feed</Link>
+            <Link to="/my-posts">My Posts</Link>
             <Link to="/groups">Groups</Link>
             <Link to="/search">Search</Link>
             <Link to="/chat">Chat</Link>

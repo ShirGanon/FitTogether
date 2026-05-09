@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getGroup, joinGroup, requestJoin } from '../api/groupsApi.js';
+import { getGroupPosts, createPost } from '../api/postsApi.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import PostCard from '../components/PostCard.jsx';
+import PostForm from '../components/PostForm.jsx';
 
 export default function GroupDetailsPage() {
   const { id } = useParams();
@@ -9,14 +12,22 @@ export default function GroupDetailsPage() {
   const navigate = useNavigate();
 
   const [group, setGroup] = useState(null);
+  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [showPostForm, setShowPostForm] = useState(false);
+  const [postLoading, setPostLoading] = useState(false);
 
   function fetchGroup() {
     setLoading(true);
     getGroup(id)
-      .then(setGroup)
+      .then((g) => {
+        setGroup(g);
+        if (g.isMember || g.isManager) {
+          return getGroupPosts(id).then(setPosts).catch(() => {});
+        }
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }
@@ -95,11 +106,43 @@ export default function GroupDetailsPage() {
         </div>
       )}
 
-      {/* Posts placeholder — filled in Phase 4 */}
+      {/* Posts */}
       {(isMember || isManager) && (
-        <div className="card">
-          <h2 style={{ marginTop: 0 }}>Posts</h2>
-          <p className="meta">Posts will appear here in Phase 4.</p>
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <h2 style={{ margin: 0 }}>Posts</h2>
+            <button className="btn btn-primary" onClick={() => setShowPostForm(!showPostForm)}>
+              {showPostForm ? 'Cancel' : '+ New Post'}
+            </button>
+          </div>
+
+          {showPostForm && (
+            <div className="card" style={{ marginBottom: 12 }}>
+              <PostForm
+                groupId={id}
+                onSubmit={(formData) => {
+                  setPostLoading(true);
+                  createPost(formData)
+                    .then((p) => { setPosts([p, ...posts]); setShowPostForm(false); })
+                    .catch((err) => alert(err.message))
+                    .finally(() => setPostLoading(false));
+                }}
+                loading={postLoading}
+                onCancel={() => setShowPostForm(false)}
+              />
+            </div>
+          )}
+
+          {posts.length === 0 && <p className="meta">No posts yet. Be the first!</p>}
+          {posts.map((post) => (
+            <PostCard
+              key={post._id}
+              post={post}
+              isGroupManager={isManager}
+              onDelete={(deletedId) => setPosts(posts.filter((p) => p._id !== deletedId))}
+              onUpdate={(updated) => setPosts(posts.map((p) => p._id === updated._id ? updated : p))}
+            />
+          ))}
         </div>
       )}
     </div>
