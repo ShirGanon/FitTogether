@@ -3,8 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   getGroup, updateGroup, deleteGroup, approveRequest, rejectRequest, removeMember,
 } from '../api/groupsApi.js';
+import { searchPosts } from '../api/postsApi.js';
 import GroupForm from '../components/GroupForm.jsx';
+import PostCard from '../components/PostCard.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+
+const POST_TYPES = ['', 'Question', 'Tip', 'Workout Plan', 'Looking for Partner', 'Progress Update', 'Event'];
+const WORKOUT_TYPES = ['', 'Running', 'Gym', 'Yoga', 'CrossFit', 'Cycling', 'Swimming', 'Home Workout', 'Other'];
 
 export default function GroupManagementPage() {
   const { id } = useParams();
@@ -15,7 +20,13 @@ export default function GroupManagementPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [saveLoading, setSaveLoading] = useState(false);
-  const [section, setSection] = useState('edit'); // 'edit' | 'requests' | 'members'
+  const [section, setSection] = useState('edit'); // 'edit' | 'requests' | 'members' | 'search'
+
+  // Extended post search state
+  const [postFilters, setPostFilters] = useState({ content: '', postType: '', workoutType: '' });
+  const [postResults, setPostResults] = useState([]);
+  const [postSearched, setPostSearched] = useState(false);
+  const [postSearchLoading, setPostSearchLoading] = useState(false);
 
   function fetchGroup() {
     setLoading(true);
@@ -57,6 +68,16 @@ export default function GroupManagementPage() {
     removeMember(id, userId).then(fetchGroup).catch((err) => alert(err.message));
   }
 
+  function handlePostSearch(e) {
+    e.preventDefault();
+    setPostSearchLoading(true);
+    const active = Object.fromEntries(Object.entries(postFilters).filter(([, v]) => v !== ''));
+    searchPosts({ ...active, groupId: id })
+      .then((results) => { setPostResults(results); setPostSearched(true); })
+      .catch((err) => alert(err.message))
+      .finally(() => setPostSearchLoading(false));
+  }
+
   if (loading) return <div className="page-content"><p>Loading…</p></div>;
   if (error) return <div className="page-content"><p className="form-error">{error}</p></div>;
   if (!group) return null;
@@ -74,6 +95,7 @@ export default function GroupManagementPage() {
           Requests {group.pendingRequests?.length > 0 && `(${group.pendingRequests.length})`}
         </button>
         <button className={`tab ${section === 'members' ? 'active' : ''}`} onClick={() => setSection('members')}>Members</button>
+        <button className={`tab ${section === 'search' ? 'active' : ''}`} onClick={() => setSection('search')}>Search Posts</button>
       </div>
 
       {/* Edit group */}
@@ -101,6 +123,60 @@ export default function GroupManagementPage() {
                 <button className="btn btn-secondary" onClick={() => handleReject(user._id)}>Reject</button>
               </div>
             </div>
+          ))}
+        </div>
+      )}
+
+      {/* Extended post search */}
+      {section === 'search' && (
+        <div>
+          <form className="card" onSubmit={handlePostSearch} style={{ marginBottom: 16 }}>
+            <h3 style={{ marginTop: 0 }}>Search Posts in This Group</h3>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Keywords</label>
+                <input
+                  type="text"
+                  placeholder="Search post content…"
+                  value={postFilters.content}
+                  onChange={(e) => setPostFilters({ ...postFilters, content: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Post Type</label>
+                <select
+                  value={postFilters.postType}
+                  onChange={(e) => setPostFilters({ ...postFilters, postType: e.target.value })}
+                >
+                  {POST_TYPES.map((t) => <option key={t} value={t}>{t || 'Any type'}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Workout Type</label>
+              <select
+                value={postFilters.workoutType}
+                onChange={(e) => setPostFilters({ ...postFilters, workoutType: e.target.value })}
+              >
+                {WORKOUT_TYPES.map((t) => <option key={t} value={t}>{t || 'Any workout'}</option>)}
+              </select>
+            </div>
+            <button type="submit" className="btn btn-primary" disabled={postSearchLoading}>
+              {postSearchLoading ? 'Searching…' : 'Search'}
+            </button>
+          </form>
+
+          {postSearched && postResults.length === 0 && (
+            <p className="meta">No posts match your filters.</p>
+          )}
+          {postResults.map((post) => (
+            <PostCard
+              key={post._id}
+              post={post}
+              isGroupManager={true}
+              onDelete={(deletedId) => setPostResults(postResults.filter((p) => p._id !== deletedId))}
+              onUpdate={(updated) => setPostResults(postResults.map((p) => p._id === updated._id ? updated : p))}
+            />
           ))}
         </div>
       )}

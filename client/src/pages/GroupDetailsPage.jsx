@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getGroup, joinGroup, requestJoin } from '../api/groupsApi.js';
+import { getGroup, joinGroup, requestJoin, removeMember } from '../api/groupsApi.js';
 import { getGroupPosts, createPost } from '../api/postsApi.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import PostCard from '../components/PostCard.jsx';
@@ -43,6 +43,15 @@ export default function GroupDetailsPage() {
       .finally(() => setActionLoading(false));
   }
 
+  function handleLeave() {
+    if (!window.confirm('Leave this group?')) return;
+    setActionLoading(true);
+    removeMember(id, userId)
+      .then(() => navigate('/groups'))
+      .catch((err) => alert(err.message))
+      .finally(() => setActionLoading(false));
+  }
+
   if (loading) return <div className="page-content"><p>Loading…</p></div>;
   if (error) return <div className="page-content"><p className="form-error">{error}</p></div>;
   if (!group) return null;
@@ -78,6 +87,11 @@ export default function GroupDetailsPage() {
             {!isMember && !isManager && !hasPending && (
               <button className="btn btn-primary" onClick={handleJoin} disabled={actionLoading}>
                 {actionLoading ? '…' : group.isPrivate ? 'Request Access' : 'Join Group'}
+              </button>
+            )}
+            {isMember && !isManager && (
+              <button className="btn btn-secondary" onClick={handleLeave} disabled={actionLoading}>
+                {actionLoading ? '…' : 'Leave Group'}
               </button>
             )}
             {hasPending && <span className="badge badge-pending">Request Pending</span>}
