@@ -44,6 +44,7 @@ export default function Navbar() {
             <Link to="/groups">Groups</Link>
             <Link to="/search">Search</Link>
             <Link to="/chat">Chat</Link>
+            <Link to="/chat">Chat</Link>
             <Link to="/stats">Stats</Link>
             <Link to="/about">About</Link>
 

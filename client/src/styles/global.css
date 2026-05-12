@@ -653,6 +653,33 @@ textarea { resize: vertical; min-height: 90px; }
   column-rule: 1px solid var(--border);
 }
 
+/* ── Feed + Chat two-column layout ── */
+.feed-layout {
+  display: flex;
+  gap: 22px;
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 28px 20px;
+  align-items: flex-start;
+}
+
+.feed-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.feed-chat-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  position: sticky;
+  top: calc(var(--nav-height) + 16px);
+  height: calc(100vh - var(--nav-height) - 32px);
+}
+
+@media (max-width: 900px) {
+  .feed-chat-sidebar { display: none; }
+}
+
 /* ── Dropdown animation ── */
 @keyframes fadeDown {
   from { opacity: 0; transform: translateY(-6px) scale(0.97); }

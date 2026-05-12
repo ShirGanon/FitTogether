@@ -3,6 +3,7 @@ import { getFeed, createPost } from '../api/postsApi.js';
 import { listGroups } from '../api/groupsApi.js';
 import PostCard from '../components/PostCard.jsx';
 import PostForm from '../components/PostForm.jsx';
+import ChatPanel from '../components/ChatPanel.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
 export default function FeedPage() {
@@ -57,44 +58,52 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="page-content">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h2>My Feed</h2>
-        {myGroups.length > 0 && (
-          <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
-            {showForm ? 'Cancel' : '+ New Post'}
-          </button>
+    <div className="feed-layout">
+      {/* ── Main feed column ── */}
+      <div className="feed-main">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <h2 style={{ margin: 0 }}>My Feed</h2>
+          {myGroups.length > 0 && (
+            <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
+              {showForm ? 'Cancel' : '+ New Post'}
+            </button>
+          )}
+        </div>
+
+        {showForm && (
+          <div className="card" style={{ marginBottom: 20 }}>
+            <PostForm
+              groups={myGroups}
+              onSubmit={handleCreate}
+              loading={postLoading}
+              onCancel={() => setShowForm(false)}
+            />
+          </div>
         )}
+
+        {loading && <p>Loading feed…</p>}
+        {error && <p className="form-error">{error}</p>}
+
+        {!loading && !error && posts.length === 0 && (
+          <div className="card" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+            <p>Your feed is empty. Join groups or add friends to see posts here.</p>
+          </div>
+        )}
+
+        {posts.map((post) => (
+          <PostCard
+            key={post._id}
+            post={post}
+            onDelete={handleDelete}
+            onUpdate={handleUpdate}
+          />
+        ))}
       </div>
 
-      {showForm && (
-        <div className="card" style={{ marginBottom: 20 }}>
-          <PostForm
-            groups={myGroups}
-            onSubmit={handleCreate}
-            loading={postLoading}
-            onCancel={() => setShowForm(false)}
-          />
-        </div>
-      )}
-
-      {loading && <p>Loading feed…</p>}
-      {error && <p className="form-error">{error}</p>}
-
-      {!loading && !error && posts.length === 0 && (
-        <div className="card" style={{ textAlign: 'center', color: '#6b7280' }}>
-          <p>Your feed is empty. Join groups or add friends to see posts here.</p>
-        </div>
-      )}
-
-      {posts.map((post) => (
-        <PostCard
-          key={post._id}
-          post={post}
-          onDelete={handleDelete}
-          onUpdate={handleUpdate}
-        />
-      ))}
+      {/* ── Chat sidebar ── */}
+      <aside className="feed-chat-sidebar">
+        <ChatPanel />
+      </aside>
     </div>
   );
 }

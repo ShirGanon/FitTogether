@@ -3,7 +3,7 @@ import { getConversation } from '../api/messagesApi.js';
 import MessageBubble from './MessageBubble.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
-export default function ChatBox({ socket, otherUser }) {
+export default function ChatBox({ socket, otherUser, compact = false }) {
   const { currentUser } = useAuth();
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState('');
@@ -71,8 +71,8 @@ export default function ChatBox({ socket, otherUser }) {
 
   return (
     <div className="chatbox">
-      <div className="chatbox-header">
-        <strong>{otherUser.fullName || otherUser.username}</strong>
+      <div className="chatbox-header" style={compact ? { padding: '10px 14px' } : {}}>
+        <strong style={{ fontSize: compact ? '0.9rem' : undefined }}>{otherUser.fullName || otherUser.username}</strong>
         <span className="username">@{otherUser.username}</span>
       </div>
 
