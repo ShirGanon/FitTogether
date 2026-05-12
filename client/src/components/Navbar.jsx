@@ -56,6 +56,7 @@ export default function Navbar() {
               <Link to="/feed"     onClick={closeAll}>Feed</Link>
               <Link to="/my-posts" onClick={closeAll}>My Posts</Link>
               <Link to="/groups"   onClick={closeAll}>Groups</Link>
+              <Link to="/users"    onClick={closeAll}>People</Link>
               <Link to="/search"   onClick={closeAll}>Search</Link>
               <Link to="/chat"     onClick={closeAll}>Chat</Link>
               <Link to="/stats"    onClick={closeAll}>Stats</Link>
@@ -198,6 +199,7 @@ export default function Navbar() {
               <Link to="/feed"                        onClick={closeAll}>🏠 Feed</Link>
               <Link to="/my-posts"                    onClick={closeAll}>📝 My Posts</Link>
               <Link to="/groups"                      onClick={closeAll}>👥 Groups</Link>
+              <Link to="/users"                       onClick={closeAll}>🧑‍🤝‍🧑 People</Link>
               <Link to="/search"                      onClick={closeAll}>🔍 Search</Link>
               <Link to="/chat"                        onClick={closeAll}>💬 Chat</Link>
               <Link to="/stats"                       onClick={closeAll}>📊 Stats</Link>
