@@ -15,3 +15,7 @@ export function markRead(id) {
 export function deleteMessage(id) {
   return ajaxRequest({ method: 'DELETE', url: `/api/messages/${id}` });
 }
+
+export function getUnreadCounts() {
+  return ajaxRequest({ method: 'GET', url: '/api/messages/unread-counts' });
+}

@@ -115,6 +115,7 @@ html, body, #root {
 .navbar-brand::before {
   content: '⚡';
   font-size: 1rem;
+  color: #fcd34d;
 }
 
 .navbar-links {

@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Message = require('../models/Message');
 
 // GET /api/messages/conversation/:userId — load history between current user and another.
@@ -95,4 +96,20 @@ async function deleteMessage(req, res, next) {
   }
 }
 
-module.exports = { getConversation, searchMessages, markRead, deleteMessage };
+// GET /api/messages/unread-counts — returns { [senderId]: count } for unread messages.
+async function getUnreadCounts(req, res, next) {
+  try {
+    const me = new mongoose.Types.ObjectId(req.session.userId);
+    const rows = await Message.aggregate([
+      { $match: { receiverId: me, isRead: false } },
+      { $group: { _id: '$senderId', count: { $sum: 1 } } },
+    ]);
+    const result = {};
+    for (const row of rows) result[row._id.toString()] = row.count;
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { getConversation, searchMessages, markRead, deleteMessage, getUnreadCounts };

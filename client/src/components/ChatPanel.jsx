@@ -1,9 +1,10 @@
 // Compact chat panel — embedded in the feed sidebar.
 // Manages its own socket connection so it works standalone.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import { listUsers } from '../api/usersApi.js';
+import { getUnreadCounts } from '../api/messagesApi.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import ChatBox from './ChatBox.jsx';
 
@@ -14,6 +15,8 @@ export default function ChatPanel() {
   const [selected, setSelected]       = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [search, setSearch]           = useState('');
+  const [unread, setUnread]           = useState({}); // { [userId]: count }
+  const selectedRef = useRef(null);   // always holds current selected user, avoids stale closures
 
   // Socket lifecycle
   useEffect(() => {
@@ -21,8 +24,38 @@ export default function ChatPanel() {
     sock.on('online_users', (ids) => setOnlineUsers(ids));
     sock.on('user_online',  (id)  => setOnlineUsers((p) => [...new Set([...p, id])]));
     sock.on('user_offline', (id)  => setOnlineUsers((p) => p.filter((u) => u !== id)));
+
+    // Increment unread badge when a message arrives and that conversation isn't open.
+    // Uses selectedRef (not state) to avoid stale-closure issues inside the socket handler.
+    sock.on('receive_message', (msg) => {
+      const senderId = (msg.senderId?._id || msg.senderId)?.toString();
+      if (selectedRef.current?._id !== senderId) {
+        setUnread((prev) => ({ ...prev, [senderId]: (prev[senderId] || 0) + 1 }));
+      }
+    });
+
     setSocket(sock);
     return () => sock.disconnect();
+  }, []);
+
+  // Keep ref in sync with state so socket handler always sees the current value.
+  useEffect(() => { selectedRef.current = selected; }, [selected]);
+
+  // Load initial unread counts, then poll every 30 s as a safety net.
+  useEffect(() => {
+    getUnreadCounts().then(setUnread).catch(() => {});
+    const interval = setInterval(
+      () => getUnreadCounts()
+              .then((fresh) => setUnread((prev) => {
+                // Only update senders that are NOT currently open (don't re-add cleared badges)
+                const merged = { ...fresh };
+                if (selectedRef.current) delete merged[selectedRef.current._id];
+                return merged;
+              }))
+              .catch(() => {}),
+      30_000
+    );
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -86,7 +119,11 @@ export default function ChatPanel() {
           return (
             <li
               key={u._id}
-              onClick={() => setSelected(isActive ? null : u)}
+              onClick={() => {
+                if (isActive) { setSelected(null); return; }
+                setSelected(u);
+                setUnread((prev) => { const n = { ...prev }; delete n[u._id]; return n; });
+              }}
               style={{
                 display: 'flex', alignItems: 'center', gap: 10,
                 padding: '9px 14px', cursor: 'pointer',
@@ -126,6 +163,20 @@ export default function ChatPanel() {
                   {isOnline ? 'Online' : `@${u.username}`}
                 </div>
               </div>
+
+              {/* Unread badge */}
+              {unread[u._id] > 0 && (
+                <div style={{
+                  minWidth: 20, height: 20, borderRadius: 10,
+                  background: 'linear-gradient(135deg,#6366f1,#818cf8)',
+                  color: '#fff',
+                  fontSize: '0.7rem', fontWeight: 700,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '0 5px', flexShrink: 0,
+                }}>
+                  {unread[u._id] > 99 ? '99+' : unread[u._id]}
+                </div>
+              )}
             </li>
           );
         })}
