@@ -12,10 +12,10 @@ export default function D3PostsByMonthChart({ data }) {
   const svgRef = useRef(null);
   const containerRef = useRef(null);
 
-  useEffect(() => {
-    if (!data || data.length === 0 || !svgRef.current) return;
+  function draw() {
+    if (!data || data.length === 0 || !svgRef.current || !containerRef.current) return;
 
-    const width = containerRef.current?.clientWidth || 600;
+    const width = containerRef.current.clientWidth || 600;
     const innerW = width - MARGIN.left - MARGIN.right;
     const innerH = HEIGHT - MARGIN.top - MARGIN.bottom;
 
@@ -122,6 +122,16 @@ export default function D3PostsByMonthChart({ data }) {
       .attr('text-anchor', 'middle')
       .attr('font-size', 12).attr('fill', '#6b7280')
       .text('Number of Posts');
+  }
+
+  useEffect(() => { draw(); }, [data]);
+
+  // Re-draw when the container is resized (e.g. window resize, orientation change).
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const ro = new ResizeObserver(() => draw());
+    ro.observe(containerRef.current);
+    return () => ro.disconnect();
   }, [data]);
 
   return (

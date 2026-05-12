@@ -49,10 +49,15 @@ export default function ChatPage() {
     u.username?.toLowerCase().includes(userSearch.toLowerCase())
   );
 
+  // On mobile, toggle between contact list and chatbox.
+  // showChat = true when a user is selected AND we're on mobile.
+  const showChat = !!selectedUser;
+
   return (
     <div className="chat-page">
-      {/* Left sidebar — user list */}
-      <aside className="chat-sidebar">
+      {/* Left sidebar — user list.
+          On mobile: visible when no conversation is open. */}
+      <aside className={`chat-sidebar ${showChat ? 'mobile-hidden' : ''}`}>
         <h3>Messages</h3>
         <input
           className="chat-search"
@@ -108,9 +113,14 @@ export default function ChatPage() {
         </div>
       </aside>
 
-      {/* Right — chat box */}
-      <main className="chat-main">
-        <ChatBox socket={socket} otherUser={selectedUser} />
+      {/* Right — chat box.
+          On mobile: visible only when a conversation is open. */}
+      <main className={`chat-main ${!showChat ? 'mobile-hidden' : ''}`}>
+        <ChatBox
+          socket={socket}
+          otherUser={selectedUser}
+          onBack={() => setSelectedUser(null)}
+        />
       </main>
     </div>
   );

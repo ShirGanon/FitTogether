@@ -158,6 +158,99 @@ html, body, #root {
   text-decoration: none;
 }
 
+/* Hamburger button — hidden on desktop */
+.navbar-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.navbar-hamburger:hover { background: rgba(255,255,255,0.08); }
+
+.ham-line {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #94a3b8;
+  border-radius: 2px;
+  transition: background 0.15s, transform 0.2s, opacity 0.2s;
+}
+
+.navbar-hamburger:hover .ham-line { background: #fff; }
+
+/* Mobile drawer menu */
+.navbar-mobile-menu {
+  display: flex;
+  flex-direction: column;
+  background: var(--nav-bg);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  z-index: 199;
+  animation: fadeDown 0.18s ease;
+  padding: 8px 0 12px;
+}
+
+.navbar-mobile-menu a,
+.navbar-mobile-menu .mobile-logout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 22px;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.12s, color 0.12s;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.navbar-mobile-menu a:hover,
+.navbar-mobile-menu .mobile-logout:hover {
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+}
+
+.mobile-logout { color: #f87171 !important; }
+
+.mobile-menu-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 22px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  margin-bottom: 6px;
+}
+
+.mobile-menu-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,#4f46e5,#6366f1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.mobile-menu-name   { font-weight: 700; color: #fff; font-size: 0.9rem; }
+.mobile-menu-handle { color: #94a3b8; font-size: 0.78rem; margin-top: 1px; }
+
 /* ── Cards ── */
 .card {
   background: var(--surface);
@@ -460,6 +553,21 @@ textarea { resize: vertical; min-height: 90px; }
   border-top: 1px solid #f1f5f9;
 }
 
+/* ── Chat back button (mobile only) ── */
+.chat-back-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--primary);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
 /* ── Chat ── */
 .chat-page {
   display: grid;
@@ -677,10 +785,6 @@ textarea { resize: vertical; min-height: 90px; }
   height: calc(100vh - var(--nav-height) - 32px);
 }
 
-@media (max-width: 900px) {
-  .feed-chat-sidebar { display: none; }
-}
-
 /* ── Dropdown animation ── */
 @keyframes fadeDown {
   from { opacity: 0; transform: translateY(-6px) scale(0.97); }
@@ -693,12 +797,128 @@ textarea { resize: vertical; min-height: 90px; }
 ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-/* ── Responsive ── */
-@media (max-width: 640px) {
-  .about-columns { column-count: 1; }
-  .stats-summary { grid-template-columns: repeat(2, 1fr); }
-  .form-row { grid-template-columns: 1fr; }
-  .chat-page { grid-template-columns: 1fr; }
+/* ══════════════════════════════════════
+   Responsive breakpoints
+   ══════════════════════════════════════ */
+
+/* ── ≤ 900px: hide feed chat sidebar ── */
+@media (max-width: 900px) {
+  .feed-chat-sidebar { display: none; }
+}
+
+/* ── ≤ 768px: mobile hamburger, stacking layouts ── */
+@media (max-width: 768px) {
+  /* Swap to hamburger */
   .navbar { padding: 0 16px; }
+  .navbar-desktop { display: none !important; }
+  .navbar-hamburger { display: flex; }
+
+  /* Page padding */
   .page-content { padding: 16px 14px; }
+  .feed-layout  { padding: 16px 14px; }
+
+  /* Profile header → stack vertically */
+  .profile-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .profile-info h1 { font-size: 1.4rem; }
+  .profile-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  .profile-actions .btn { flex: 1; min-width: 120px; }
+
+  /* Group cards → stack */
+  .group-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .group-card-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  /* User cards → stack */
+  .user-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .user-card > * { width: 100%; }
+
+  /* Member rows → wrap */
+  .member-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Post header → wrap, date below author */
+  .post-header {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .post-actions { flex-wrap: wrap; }
+
+  /* Stats grid → 2 columns */
+  .stats-summary { grid-template-columns: repeat(2, 1fr); }
+
+  /* Form rows → single column */
+  .form-row { grid-template-columns: 1fr; }
+
+  /* Card padding tighter */
+  .card { padding: 16px 18px; }
+
+  /* Chat page → single-column, toggle panels via .mobile-hidden */
+  .chat-page { grid-template-columns: 1fr; }
+  .chat-sidebar { display: flex; }        /* shown by default on mobile */
+  .chat-main    { display: flex; }
+  .chat-sidebar.mobile-hidden { display: none; }
+  .chat-main.mobile-hidden    { display: none; }
+
+  /* Show back button inside chatbox header on mobile */
+  .chat-back-btn { display: inline-flex; align-items: center; }
+
+  /* Tab bar → horizontal scroll on narrow viewports */
+  .tab-bar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 4px 4px;
+  }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .tab { flex: 0 0 auto; white-space: nowrap; }
+
+  /* About columns → single column */
+  .about-columns { column-count: 1; }
+
+  /* Auth card title smaller */
+  .auth-card h1.hero-title { font-size: 1.7rem; }
+  .hero-title { font-size: 1.6rem; }
+}
+
+/* ── ≤ 480px: extra small phones ── */
+@media (max-width: 480px) {
+  /* Stats → 2 columns still fine, but values smaller */
+  .stat-value { font-size: 1.7rem; }
+
+  /* Badges wrapping in post meta */
+  .post-meta { gap: 4px; }
+
+  /* Buttons full-width in forms */
+  .btn-block-mobile { width: 100%; }
+
+  /* Checkbox group wraps more aggressively */
+  .checkbox-label { font-size: 0.8rem; padding: 4px 10px; }
+
+  /* Canvas badge center on tiny phones */
+  .profile-header { align-items: center; }
+  .profile-info   { text-align: center; width: 100%; }
+  .profile-actions { justify-content: center; }
+
+  /* Tighter card on tiny screens */
+  .card { padding: 14px 14px; border-radius: var(--radius-md); }
 }

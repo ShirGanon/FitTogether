@@ -3,7 +3,7 @@ import { getConversation } from '../api/messagesApi.js';
 import MessageBubble from './MessageBubble.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
-export default function ChatBox({ socket, otherUser, compact = false }) {
+export default function ChatBox({ socket, otherUser, compact = false, onBack }) {
   const { currentUser } = useAuth();
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState('');
@@ -72,6 +72,16 @@ export default function ChatBox({ socket, otherUser, compact = false }) {
   return (
     <div className="chatbox">
       <div className="chatbox-header" style={compact ? { padding: '10px 14px' } : {}}>
+        {/* Back button — shown on mobile full-screen chat view */}
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="chat-back-btn"
+            aria-label="Back to contacts"
+          >
+            ←
+          </button>
+        )}
         <strong style={{ fontSize: compact ? '0.9rem' : undefined }}>{otherUser.fullName || otherUser.username}</strong>
         <span className="username">@{otherUser.username}</span>
       </div>
