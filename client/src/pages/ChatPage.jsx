@@ -1,21 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import { listUsers } from '../api/usersApi.js';
-import { searchMessages } from '../api/messagesApi.js';
+import { searchMessages, getUnreadCounts } from '../api/messagesApi.js';
 import ChatBox from '../components/ChatBox.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
 export default function ChatPage() {
   const { currentUser } = useAuth();
-  const [socket, setSocket] = useState(null);
-  const [users, setUsers] = useState([]);
+  const [socket, setSocket]           = useState(null);
+  const [users, setUsers]             = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
-  const [userSearch, setUserSearch] = useState('');
+  const [userSearch, setUserSearch]   = useState('');
+  const [unread, setUnread]           = useState({}); // { [senderId]: count }
+  const selectedRef = useRef(null);    // avoids stale closure in socket handler
 
   // Message search state.
-  const [msgSearch, setMsgSearch] = useState('');
-  const [msgResults, setMsgResults] = useState([]);
+  const [msgSearch, setMsgSearch]     = useState('');
+  const [msgResults, setMsgResults]   = useState([]);
   const [msgSearched, setMsgSearched] = useState(false);
 
   // Connect socket on mount, disconnect on unmount.
@@ -23,11 +25,39 @@ export default function ChatPage() {
     const sock = io({ withCredentials: true });
 
     sock.on('online_users', (ids) => setOnlineUsers(ids));
-    sock.on('user_online', (id) => setOnlineUsers((prev) => [...new Set([...prev, id])]));
-    sock.on('user_offline', (id) => setOnlineUsers((prev) => prev.filter((u) => u !== id)));
+    sock.on('user_online',  (id)  => setOnlineUsers((prev) => [...new Set([...prev, id])]));
+    sock.on('user_offline', (id)  => setOnlineUsers((prev) => prev.filter((u) => u !== id)));
+
+    // Increment unread badge when a message arrives and that conversation isn't open.
+    sock.on('receive_message', (msg) => {
+      const senderId = (msg.senderId?._id || msg.senderId)?.toString();
+      if (selectedRef.current?._id !== senderId) {
+        setUnread((prev) => ({ ...prev, [senderId]: (prev[senderId] || 0) + 1 }));
+      }
+    });
 
     setSocket(sock);
     return () => sock.disconnect();
+  }, []);
+
+  // Keep ref in sync so the socket handler always sees the current selected user.
+  useEffect(() => { selectedRef.current = selectedUser; }, [selectedUser]);
+
+  // Load initial unread counts, then poll every 30 s as a safety net.
+  useEffect(() => {
+    getUnreadCounts().then(setUnread).catch(() => {});
+    const interval = setInterval(
+      () => getUnreadCounts()
+              .then((fresh) => setUnread((prev) => {
+                const merged = { ...fresh };
+                // Don't re-add a badge for the currently open conversation.
+                if (selectedRef.current) delete merged[selectedRef.current._id];
+                return merged;
+              }))
+              .catch(() => {}),
+      30_000
+    );
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -70,12 +100,34 @@ export default function ChatPage() {
             <li
               key={u._id}
               className={`contact-item ${selectedUser?._id === u._id ? 'active' : ''}`}
-              onClick={() => setSelectedUser(u)}
+              onClick={() => {
+                setSelectedUser(u);
+                // Clear the unread badge for this conversation.
+                setUnread((prev) => { const n = { ...prev }; delete n[u._id]; return n; });
+              }}
             >
-              <div className="contact-name">{u.fullName || u.username}</div>
-              <div className="contact-meta">
-                <span className="username">@{u.username}</span>
-                {onlineUsers.includes(u._id) && <span className="online-dot" title="Online" />}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                <div>
+                  <div className="contact-name">{u.fullName || u.username}</div>
+                  <div className="contact-meta">
+                    <span className="username">@{u.username}</span>
+                    {onlineUsers.includes(u._id) && <span className="online-dot" title="Online" />}
+                  </div>
+                </div>
+
+                {/* Unread badge */}
+                {unread[u._id] > 0 && (
+                  <div style={{
+                    minWidth: 20, height: 20, borderRadius: 10,
+                    background: 'linear-gradient(135deg,#6366f1,#818cf8)',
+                    color: '#fff',
+                    fontSize: '0.7rem', fontWeight: 700,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: '0 5px', flexShrink: 0,
+                  }}>
+                    {unread[u._id] > 99 ? '99+' : unread[u._id]}
+                  </div>
+                )}
               </div>
             </li>
           ))}
