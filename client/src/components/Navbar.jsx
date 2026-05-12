@@ -53,12 +53,17 @@ export default function Navbar() {
                 onClick={() => setOpen((v) => !v)}
                 style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  width: 34, height: 34, borderRadius: '50%',
-                  background: open ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.2)',
-                  border: '2px solid rgba(255,255,255,0.5)',
-                  fontWeight: 700, fontSize: '0.75rem', color: 'white',
+                  width: 36, height: 36, borderRadius: '50%',
+                  background: open
+                    ? 'linear-gradient(135deg,#6366f1,#4f46e5)'
+                    : 'linear-gradient(135deg,#4f46e5,#6366f1)',
+                  border: '2px solid rgba(255,255,255,0.15)',
+                  fontWeight: 700, fontSize: '0.78rem', color: 'white',
                   cursor: 'pointer', flexShrink: 0,
-                  transition: 'background 0.15s',
+                  boxShadow: open ? '0 0 0 3px rgba(99,102,241,0.4)' : '0 2px 6px rgba(79,70,229,0.4)',
+                  transition: 'box-shadow 0.15s, transform 0.15s',
+                  transform: open ? 'scale(1.08)' : 'scale(1)',
+                  fontFamily: 'inherit',
                 }}
                 aria-label="User menu"
               >
@@ -67,53 +72,74 @@ export default function Navbar() {
 
               {open && (
                 <div style={{
-                  position: 'absolute', top: 'calc(100% + 10px)', right: 0,
-                  background: 'white', borderRadius: 12,
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-                  minWidth: 200, zIndex: 200,
+                  position: 'absolute', top: 'calc(100% + 12px)', right: 0,
+                  background: '#fff',
+                  borderRadius: 16,
+                  boxShadow: '0 12px 40px rgba(15,23,42,0.18), 0 2px 8px rgba(15,23,42,0.08)',
+                  minWidth: 220,
+                  zIndex: 300,
                   overflow: 'hidden',
+                  border: '1px solid #e2e8f0',
+                  animation: 'fadeDown 0.15s ease',
                 }}>
-                  {/* User info header */}
+                  {/* Avatar + name header */}
                   <div style={{
-                    padding: '14px 16px 12px',
-                    borderBottom: '1px solid #f3f4f6',
-                    background: '#f9fafb',
+                    padding: '18px 18px 14px',
+                    background: 'linear-gradient(135deg,#eef2ff 0%,#f5f3ff 100%)',
+                    borderBottom: '1px solid #e2e8f0',
+                    display: 'flex', alignItems: 'center', gap: 12,
                   }}>
-                    <div style={{ fontWeight: 700, color: '#1f2937', fontSize: '0.95rem' }}>
-                      {currentUser.fullName}
+                    <div style={{
+                      width: 42, height: 42, borderRadius: '50%',
+                      background: 'linear-gradient(135deg,#4f46e5,#6366f1)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontWeight: 700, fontSize: '0.9rem', color: 'white',
+                      flexShrink: 0, boxShadow: '0 2px 8px rgba(79,70,229,0.3)',
+                    }}>
+                      {initials}
                     </div>
-                    <div style={{ color: '#6b7280', fontSize: '0.8rem', marginTop: 2 }}>
-                      @{currentUser.username}
+                    <div>
+                      <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.95rem', lineHeight: 1.3 }}>
+                        {currentUser.fullName}
+                      </div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: 2 }}>
+                        @{currentUser.username}
+                      </div>
                     </div>
                   </div>
 
                   {/* Actions */}
-                  <div style={{ padding: '6px 0' }}>
+                  <div style={{ padding: '8px 6px' }}>
                     <Link
                       to={`/profile/${currentUser._id}`}
                       onClick={() => setOpen(false)}
                       style={{
-                        display: 'block', padding: '9px 16px',
-                        color: '#1f2937', textDecoration: 'none',
-                        fontSize: '0.9rem', transition: 'background 0.1s',
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        padding: '10px 14px',
+                        color: '#0f172a', textDecoration: 'none',
+                        fontSize: '0.875rem', fontWeight: 500,
+                        borderRadius: 10, transition: 'background 0.12s',
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
+                      onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
                       onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
-                      👤 View Profile
+                      <span style={{ fontSize: '1.05rem' }}>👤</span> View Profile
                     </Link>
                     <button
                       onClick={handleLogout}
                       style={{
-                        display: 'block', width: '100%', textAlign: 'left',
-                        padding: '9px 16px', background: 'none', border: 'none',
-                        color: '#dc2626', fontSize: '0.9rem', cursor: 'pointer',
-                        transition: 'background 0.1s',
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        width: '100%', textAlign: 'left',
+                        padding: '10px 14px', background: 'none', border: 'none',
+                        color: '#ef4444', fontSize: '0.875rem', fontWeight: 500,
+                        cursor: 'pointer', borderRadius: 10,
+                        transition: 'background 0.12s',
+                        fontFamily: 'inherit',
                       }}
                       onMouseEnter={(e) => e.currentTarget.style.background = '#fef2f2'}
                       onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
-                      🚪 Logout
+                      <span style={{ fontSize: '1.05rem' }}>🚪</span> Log out
                     </button>
                   </div>
                 </div>
