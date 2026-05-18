@@ -12,6 +12,10 @@ export function markRead(id) {
   return ajaxRequest({ method: 'PUT', url: `/api/messages/${id}/read` });
 }
 
+export function editMessage(id, content) {
+  return ajaxRequest({ method: 'PUT', url: `/api/messages/${id}`, data: { content } });
+}
+
 export function deleteMessage(id) {
   return ajaxRequest({ method: 'DELETE', url: `/api/messages/${id}` });
 }

@@ -81,6 +81,26 @@ async function markRead(req, res, next) {
   }
 }
 
+// PUT /api/messages/:id — sender can edit the content of their own messages.
+async function updateMessage(req, res, next) {
+  try {
+    const { content } = req.body;
+    if (!content || !content.trim()) {
+      return res.status(400).json({ error: 'Message content cannot be empty.' });
+    }
+    const message = await Message.findById(req.params.id);
+    if (!message) return res.status(404).json({ error: 'Message not found.' });
+    if (message.senderId.toString() !== req.session.userId) {
+      return res.status(403).json({ error: 'You can only edit your own messages.' });
+    }
+    message.content = content.trim();
+    await message.save();
+    res.json(message);
+  } catch (err) {
+    next(err);
+  }
+}
+
 // DELETE /api/messages/:id — sender can delete their own messages.
 async function deleteMessage(req, res, next) {
   try {
@@ -112,4 +132,4 @@ async function getUnreadCounts(req, res, next) {
   }
 }
 
-module.exports = { getConversation, searchMessages, markRead, deleteMessage, getUnreadCounts };
+module.exports = { getConversation, searchMessages, markRead, updateMessage, deleteMessage, getUnreadCounts };

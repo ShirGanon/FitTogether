@@ -92,7 +92,12 @@ export default function ChatBox({ socket, otherUser, compact = false, onBack }) 
           <p className="meta" style={{ textAlign: 'center' }}>No messages yet. Say hi!</p>
         )}
         {messages.map((msg) => (
-          <MessageBubble key={msg._id} message={msg} onDelete={handleDelete} />
+          <MessageBubble
+            key={msg._id}
+            message={msg}
+            onDelete={handleDelete}
+            onUpdate={(updated) => setMessages((prev) => prev.map((m) => m._id === updated._id ? updated : m))}
+          />
         ))}
         <div ref={bottomRef} />
       </div>

@@ -5,17 +5,15 @@
 import { useEffect, useRef } from 'react';
 
 const LEVEL_COLOR = {
-  Beginner:     '#10b981',
-  Intermediate: '#1d4ed8',
-  Advanced:     '#7c3aed',
-  Elite:        '#dc2626',
+  beginner:     '#10b981',
+  intermediate: '#1d4ed8',
+  advanced:     '#7c3aed',
 };
 
 const LEVEL_FILL = {
-  Beginner:     0.30,
-  Intermediate: 0.60,
-  Advanced:     0.82,
-  Elite:        1.00,
+  beginner:     0.30,
+  intermediate: 0.60,
+  advanced:     0.82,
 };
 
 const WORKOUT_ICON = {
