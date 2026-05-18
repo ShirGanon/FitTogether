@@ -47,10 +47,6 @@ export default function AboutPage() {
       <div className="card" style={{ marginBottom: 24 }}>
         <h2 style={{ marginTop: 0 }} className="page-title">Intro Video</h2>
         <VideoPanel />
-        <p className="meta" style={{ marginTop: 8 }}>
-          To show your own video: place <code>intro.mp4</code> inside{' '}
-          <code>client/public/videos/</code> and refresh.
-        </p>
       </div>
 
       {/* Tech stack summary */}

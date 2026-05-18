@@ -46,7 +46,7 @@ export default function GroupDetailsPage() {
   function handleLeave() {
     if (!window.confirm('Leave this group?')) return;
     setActionLoading(true);
-    removeMember(id, userId)
+    removeMember(id, currentUser._id)
       .then(() => navigate('/groups'))
       .catch((err) => alert(err.message))
       .finally(() => setActionLoading(false));
